@@ -39,6 +39,11 @@ module MongoSessions
       collection.update({'_id' => sid}, {'_id' => sid, 't' => Time.now, 's' => pack(session_data), 'user_id' => session_data['user_id']}, {:upsert => true})
       sid
     end
+
+    def destroy_session(env, sid, options = {})
+      collection.remove({'_id' => sid})
+      options[:drop] ? nil : get_session(env)
+    end
     
     def pack(data)
       [Marshal.dump(data)].pack("m*")
