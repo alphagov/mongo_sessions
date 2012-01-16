@@ -28,7 +28,7 @@ module MongoSessions
     end
 
     private
-    def get_session(env, sid)
+    def get_session(env, sid = nil)
       sid ||= generate_sid
       data = collection.find_one('_id' => sid)
       [sid, data ? unpack(data['s']) : {}]
