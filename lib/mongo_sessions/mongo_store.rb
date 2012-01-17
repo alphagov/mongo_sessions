@@ -37,13 +37,13 @@ module MongoSessions
     def set_session(env, sid, session_data, options = {})
       sid = sid.join('&') if sid.kind_of?(Array)
       sid ||= generate_sid
-      collection.update({'_id' => sid}, {'_id' => sid, 't' => Time.now, 's' => pack(session_data)}, {:upsert => true})
+      collection.update({'_id' => sid}, {'t' => Time.now, 's' => pack(session_data)}, {:upsert => true})
       sid
     end
 
     def destroy_session(env, sid, options = {})
       collection.remove({'_id' => sid})
-      options[:drop] ? nil : get_session(env)
+      options[:drop] ? nil : set_session(env, nil, {})
     end
     
     def pack(data)
