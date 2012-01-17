@@ -31,13 +31,25 @@ module MongoSessions
     def get_session(env, sid = nil)
       sid ||= generate_sid
       data = collection.find_one('_id' => sid)
+      unless data.nil?
+        collection.update({'_id' => sid}, {'l' => Time.now})
+      end
       [sid, data ? unpack(data['s']) : {}]
     end
 
     def set_session(env, sid, session_data, options = {})
       sid = sid.join('&') if sid.kind_of?(Array)
       sid ||= generate_sid
-      collection.update({'_id' => sid}, {'t' => Time.now, 's' => pack(session_data)}, {:upsert => true})
+      collection.update(
+        {'_id' => sid}, 
+        {
+          '_id', sid, 
+          't' => Time.now, 
+          'l' => Time.now, 
+          's' => pack(session_data)
+        }, 
+        {:upsert => true}
+      )
       sid
     end
 
