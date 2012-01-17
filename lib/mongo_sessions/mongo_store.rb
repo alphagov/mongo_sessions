@@ -22,6 +22,7 @@ module MongoSessions
       
       @collection = options[:collection].respond_to?(:call) ? options[:collection].call : options[:collection]
       @logger = options[:logger].respond_to?(:call) ? options[:logger] : nil
+ 
       logger "initialized with #{options.inspect}"
       super
     end
@@ -38,10 +39,6 @@ module MongoSessions
       sid ||= generate_sid
       data = collection.find_one('_id' => sid)
       logger "get_session data: #{data.inspect.to_s}"
-      unless data.nil?
-        collection.update({'_id' => sid}, {'l' => Time.now})
-        logger "updated last for #{sid}"
-      end
       [sid, data ? unpack(data['s']) : {}]
     end
 
@@ -54,7 +51,6 @@ module MongoSessions
         {
           '_id' => sid, 
           't' => Time.now, 
-          'l' => Time.now, 
           's' => pack(session_data)
         }, 
         {:upsert => true}
