@@ -35,8 +35,9 @@ module MongoSessions
     end
 
     def set_session(env, sid, session_data, options = {})
+      sid = sid.join('&') if sid.kind_of?(Array)
       sid ||= generate_sid
-      collection.update({'_id' => sid}, {'_id' => sid, 't' => Time.now, 's' => pack(session_data), 'user_id' => session_data['user_id']}, {:upsert => true})
+      collection.update({'_id' => sid}, {'_id' => sid, 't' => Time.now, 's' => pack(session_data)}, {:upsert => true})
       sid
     end
 
