@@ -43,7 +43,7 @@ module MongoSessions
       collection.update(
         {'_id' => sid}, 
         {
-          '_id', sid, 
+          '_id' => sid, 
           't' => Time.now, 
           'l' => Time.now, 
           's' => pack(session_data)
